@@ -1,8 +1,50 @@
 #include <stdio.h>
 #include <sstream>
 
-#include <libplatform/libplatform.h>
 #include <v8.h>
+#include <libplatform/libplatform.h>
+
+static v8::Local<v8::String>
+v8str(v8::Isolate *isolate, const char *s)
+{
+    return v8::String::NewFromUtf8(isolate, s, v8::NewStringType::kNormal).ToLocalChecked();
+}
+
+static v8::Local<v8::Value>
+run_script(v8::Isolate *isolate, std::string path)
+{
+    std::ifstream f(path);
+    std::stringstream buf;        
+    buf << f.rdbuf();
+    std::string src = buf.str();
+    v8::Local<v8::Context> ctx = isolate->GetCurrentContext();
+    v8::Local<v8::Script> script = v8::Script::Compile(ctx, v8str(isolate, src.c_str())).ToLocalChecked();
+    return script->Run(ctx).ToLocalChecked();
+}
+
+static void
+log_cb(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+    v8::Isolate *isolate = args.GetIsolate();
+    v8::HandleScope handle_scope(isolate);
+    printf("v8/log:");
+    for (int i = 0; i < args.Length(); i++) {
+        v8::String::Utf8Value utf8(isolate, args[i]);
+        printf(" %s", *utf8);
+    }
+    printf("\n");
+}
+
+static void
+include_cb(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+    v8::Isolate *isolate = args.GetIsolate();
+    v8::HandleScope handle_scope(isolate);
+
+    v8::String::Utf8Value filename(isolate, args[0]);
+    printf("v8/include: %s\n", *filename);
+    run_script(isolate, std::string("./scripts/") + *filename);
+}
 
 int
 main(int argc, char *argv[])
@@ -24,34 +66,29 @@ main(int argc, char *argv[])
     {
         v8::Isolate::Scope isolate_scope(isolate);
         v8::HandleScope handle_scope(isolate);
-        v8::Local<v8::Context> ctx = v8::Context::New(isolate);
+
+        // set up global context template
+
+        v8::Local<v8::ObjectTemplate> builtin = v8::ObjectTemplate::New(isolate);
+        builtin->Set(isolate, "log", v8::FunctionTemplate::New(isolate, log_cb));
+        builtin->Set(isolate, "include", v8::FunctionTemplate::New(isolate, include_cb));
+
+        v8::Local<v8::ObjectTemplate> global = v8::ObjectTemplate::New(isolate);
+        global->Set(isolate, "builtin", builtin);
+
+        // create context
+        v8::Local<v8::Context> ctx = v8::Context::New(isolate, NULL, global);
         v8::Context::Scope ctx_scope(ctx);
 
-        std::string src_str;
-        if (0) {
-            // print hello world
-            src_str = "'Hello' + ' world' + ', from v8!'";
-        } else {
-            // read src from file
-            // c++ is silly
-            std::ifstream f("plugins/tonal.min.js");
-            std::stringstream buf;        
-            buf << f.rdbuf();
-            buf << std::endl;
-            buf << "Tonal.Note.midi('A4')";
-            src_str = buf.str();
-        }
+        // run entry script
+        v8::Local<v8::Value> result = run_script(isolate, "./scripts/entry.js");
 
-        v8::Local<v8::String> src = v8::String::NewFromUtf8(
-            isolate, src_str.c_str(), v8::NewStringType::kNormal).ToLocalChecked();
-
-        // compile script
-        v8::Local<v8::Script> script = v8::Script::Compile(ctx, src).ToLocalChecked();
-        // run script
-        v8::Local<v8::Value> result = script->Run(ctx).ToLocalChecked();
         // convert result to str and print
         v8::String::Utf8Value utf8(isolate, result);
-        printf("result: %s\n", *utf8);
+        printf("entry.js result: %s\n", *utf8);
+
+        // pump v8 message loop...?
+        while (v8::platform::PumpMessageLoop(platform.get(), isolate));
     }
 
     isolate->Dispose();
