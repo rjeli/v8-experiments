@@ -1,4 +1,5 @@
-CXX=clang++-11
+CXX=c++
+#CXX=clang++-11
 CXXFLAGS=-std=c++11 -O3 -g -Wall -I/usr/include/nodejs/deps/v8/include
 LDFLAGS=-lv8
 

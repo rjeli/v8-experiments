@@ -1,3 +1,12 @@
+```
+$ sudo apt install libnode-dev # works on buster, maybe works on ubongo
+$ make
+$ ./main
+hello world
+result: 69
+done
+```
+
 main.cc mainly follows https://chromium.googlesource.com/v8/v8/+/branch-heads/6.8/samples/hello-world.cc
 
 more @ https://v8.dev/docs/embed
