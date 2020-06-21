@@ -1,8 +1,18 @@
 #include <stdio.h>
+#include <inttypes.h>
 #include <sstream>
 
 #include <v8.h>
 #include <libplatform/libplatform.h>
+
+static std::string
+read_file(std::string path)
+{
+    std::ifstream f(path);
+    std::stringstream buf;        
+    buf << f.rdbuf();
+    return buf.str();
+}
 
 static v8::Local<v8::String>
 v8str(v8::Isolate *isolate, const char *s)
@@ -11,12 +21,8 @@ v8str(v8::Isolate *isolate, const char *s)
 }
 
 static v8::Local<v8::Value>
-run_script(v8::Isolate *isolate, std::string path)
+run_script(v8::Isolate *isolate, std::string src)
 {
-    std::ifstream f(path);
-    std::stringstream buf;        
-    buf << f.rdbuf();
-    std::string src = buf.str();
     v8::Local<v8::Context> ctx = isolate->GetCurrentContext();
     v8::Local<v8::Script> script = v8::Script::Compile(ctx, v8str(isolate, src.c_str())).ToLocalChecked();
     return script->Run(ctx).ToLocalChecked();
@@ -44,7 +50,7 @@ include_cb(const v8::FunctionCallbackInfo<v8::Value>& args)
 
     v8::String::Utf8Value filename(isolate, args[0]);
     printf("v8/include: %s\n", *filename);
-    run_script(isolate, std::string("./scripts/") + *filename);
+    run_script(isolate, read_file(std::string("./scripts/") + *filename));
 }
 
 int
@@ -80,11 +86,17 @@ main(int argc, char *argv[])
         v8::Context::Scope ctx_scope(ctx);
 
         // run entry script
-        v8::Local<v8::Value> result = run_script(isolate, "./scripts/entry.js");
+        v8::Local<v8::Value> result = run_script(isolate, read_file("./scripts/entry.js"));
 
         // convert result to str and print
         v8::String::Utf8Value utf8(isolate, result);
         printf("entry.js result: %s\n", *utf8);
+
+        // how to call into js and use value in c++
+        std::string src = "Tonal.Interval.semitones('5P');";
+        v8::Local<v8::Value> result2 = run_script(isolate, src);
+        int64_t num_semitones = result2->IntegerValue(ctx).ToChecked();
+        printf("the interval 5P spans %" PRIi64 " semitones\n", num_semitones);
 
         // pump v8 message loop...?
         while (v8::platform::PumpMessageLoop(platform.get(), isolate));

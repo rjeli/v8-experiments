@@ -9,6 +9,7 @@ v8/log: hello from entry.js
 v8/include: tonal.min.js
 v8/log: a4 midi is: 69
 entry.js result: and this is the returned value.
+the interval 5P spans 7 semitones
 done
 ```
 
