@@ -96,7 +96,7 @@ main(int argc, char *argv[])
         std::string src = "Tonal.Interval.semitones('5P');";
         v8::Local<v8::Value> result2 = run_script(isolate, src);
         int64_t num_semitones = result2->IntegerValue(ctx).ToChecked();
-        printf("the interval 5P spans %" PRIi64 " semitones\n", num_semitones);
+        printf("now back in c++, the interval 5P spans %" PRIi64 " semitones\n", num_semitones);
 
         // pump v8 message loop...?
         while (v8::platform::PumpMessageLoop(platform.get(), isolate)) printf("pumped\n");
