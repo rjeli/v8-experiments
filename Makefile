@@ -1,6 +1,6 @@
-CXX=c++
 #CXX=clang++-11
-CXXFLAGS=-std=c++11 -O3 -g -Wall -Ithirdparty/v8/include -Ithirdparty/v8pp-1.7.0
+CXX=c++
+CXXFLAGS=-std=c++11 -Wall -O2 -g -Ithirdparty/v8/include
 LDFLAGS=thirdparty/v8/libv8.a -lpthread
 
 SRC=main.cc

@@ -27,6 +27,7 @@ log_cb(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
     v8::Isolate *isolate = args.GetIsolate();
     v8::HandleScope handle_scope(isolate);
+
     printf("v8/log:");
     for (int i = 0; i < args.Length(); i++) {
         v8::String::Utf8Value utf8(isolate, args[i]);
@@ -68,11 +69,9 @@ main(int argc, char *argv[])
         v8::HandleScope handle_scope(isolate);
 
         // set up global context template
-
         v8::Local<v8::ObjectTemplate> builtin = v8::ObjectTemplate::New(isolate);
         builtin->Set(isolate, "log", v8::FunctionTemplate::New(isolate, log_cb));
         builtin->Set(isolate, "include", v8::FunctionTemplate::New(isolate, include_cb));
-
         v8::Local<v8::ObjectTemplate> global = v8::ObjectTemplate::New(isolate);
         global->Set(isolate, "builtin", builtin);
 
