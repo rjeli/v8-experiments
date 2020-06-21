@@ -33,4 +33,4 @@ $ ldd main
     /lib64/ld-linux-x86-64.so.2 (0x00007f8c1219b000)
 ```
 
-On windows there's a NuGet package https://www.nuget.org/packages/v8-v140-x64/
+On windows/msvc there's NuGet packages: https://github.com/pmed/v8-nuget
