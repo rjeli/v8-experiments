@@ -1,7 +1,7 @@
 CXX=c++
 #CXX=clang++-11
-CXXFLAGS=-std=c++11 -O3 -g -Wall -I/usr/include/nodejs/deps/v8/include
-LDFLAGS=-lv8
+CXXFLAGS=-std=c++11 -O3 -g -Wall -Ithirdparty/v8/include
+LDFLAGS=thirdparty/v8/libv8.a -lpthread
 
 SRC=main.cc
 OBJ=$(SRC:.cc=.o)

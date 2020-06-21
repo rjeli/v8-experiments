@@ -18,3 +18,6 @@ but for a release build, there are prebuilts available at https://github.com/den
 um for some reason Tonal.node.midi('A4') returns 69 but the README says it returns 60. i verified this is correct in browser
 
 todo: console.log
+
+https://explorerplusplus.com/blog/2019/03/07/embedding-v8-c++-application
+

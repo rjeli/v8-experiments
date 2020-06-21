@@ -34,7 +34,7 @@ main(int argc, char *argv[])
         } else {
             // read src from file
             // c++ is silly
-            std::ifstream f("tonal.min.js");
+            std::ifstream f("plugins/tonal.min.js");
             std::stringstream buf;        
             buf << f.rdbuf();
             buf << std::endl;
