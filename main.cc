@@ -99,7 +99,7 @@ main(int argc, char *argv[])
         printf("the interval 5P spans %" PRIi64 " semitones\n", num_semitones);
 
         // pump v8 message loop...?
-        while (v8::platform::PumpMessageLoop(platform.get(), isolate));
+        while (v8::platform::PumpMessageLoop(platform.get(), isolate)) printf("pumped\n");
     }
 
     isolate->Dispose();
