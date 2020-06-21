@@ -1,11 +1,14 @@
 linux (tested on buster):
 
 ```
-$ ./get_linux_deps
+$ ./get_linux_deps.sh
 $ make
 $ ./main
 hello world
-result: 69
+v8/log: hello from entry.js
+v8/include: tonal.min.js
+v8/log: a4 midi is: 69
+entry.js result: and this is the returned value.
 done
 ```
 
